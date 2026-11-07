@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>NAI 护图工坊 · 正片叠底水印/局部擦除/高颜值拼贴预览框</title>
+  <title>NAI 护图工坊 · 自定义水印框/底纹导入 · 正片叠底与局部擦除</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -102,9 +102,9 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="font-bold text-base sm:text-lg tracking-tight text-white">NAI 护图工坊</h1>
-            <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">正片叠底 · 擦除面部 · 液态玻璃</span>
+            <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">自定义水印/底纹 · 正片叠底 · 擦除面部</span>
           </div>
-          <p class="text-xs text-slate-400 hidden sm:block">纯本地运行 · 自动粉碎 PNG Info 与 Alpha 隐写 · 支持正片叠底溶图、手涂擦除水印与设计感拼贴框</p>
+          <p class="text-xs text-slate-400 hidden sm:block">纯本地运行 · 支持导入自定义水印框与平铺底纹、自定义改色、正片叠底/柔光混合与手涂擦脸</p>
         </div>
       </div>
 
@@ -179,7 +179,7 @@
             </div>
           </div>
           <div class="flex items-center gap-1.5 flex-wrap">
-            <label class="inline-flex items-center gap-1 text-[11px] text-slate-300 cursor-pointer mr-1" title="勾选后，擦除脸部水印时也会一并擦除脸部区域的防垫底纹，让面部彻底干净">
+            <label class="inline-flex items-center gap-1 text-[11px] text-slate-300 cursor-pointer mr-1" title="勾选后，擦除脸部水印时也会一并擦除脸部区域的防垫底纹（含自定义导入底纹），让面部彻底干净">
               <input id="eraseIncludePattern" type="checkbox" checked class="w-3.5 h-3.5 accent-pink-500 rounded" />
               <span>含底纹</span>
             </label>
@@ -191,7 +191,7 @@
             </button>
           </div>
           <div id="eraserHintBanner" class="w-full text-[11px] text-slate-400 flex items-center justify-between pt-0.5 border-t border-slate-800/80">
-            <span>💡 提示：点击上方【🧹 擦除面部水印】开启画笔（或直接点“一键擦脸区”），在预览图人物脸上拖动涂抹即可柔化擦除水印，不伤原图！</span>
+            <span>💡 提示：无论是内置文字水印、导入的自定义水印框还是自定义底纹，开启画笔后在人物脸上涂抹都能柔和擦开！</span>
             <span id="eraserStatusPill" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-medium shrink-0">画笔：未激活</span>
           </div>
         </div>
@@ -267,12 +267,12 @@
         </button>
       </div>
 
-      <!-- TAB 1: WATERMARK & STAMP -->
+      <!-- TAB 1: WATERMARK & CUSTOM WATERMARK FRAME & STAMP -->
       <div id="tab-watermark" class="tab-panel glass-panel rounded-2xl p-4 flex flex-col gap-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
           <div>
-            <h2 class="text-sm font-bold text-white">全屏水印 · 正片叠底溶图 & 擦除</h2>
-            <p class="text-xs text-slate-400">支持正片叠底与柔光融合，肉眼自然不突兀，支持手涂擦开脸部</p>
+            <h2 class="text-sm font-bold text-white">全屏水印 · 自定义水印框 & 正片叠底</h2>
+            <p class="text-xs text-slate-400">支持导入自定义水印/水印框、改色、缩放位移、平铺满屏与正片叠底</p>
           </div>
           <label class="inline-flex items-center gap-2 cursor-pointer">
             <input id="wmEnabled" type="checkbox" checked class="w-4 h-4 accent-pink-500 rounded" />
@@ -280,7 +280,140 @@
           </label>
         </div>
 
-        <div class="flex flex-col gap-3">
+        <!-- Shared Layer Blend Mode & Opacity for Watermarks -->
+        <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-3 flex flex-col gap-2.5">
+          <div class="flex items-center justify-between">
+            <label for="wmBlendMode" class="text-xs font-bold text-pink-300">✨ 水印图层效果（文字水印 & 导入水印共用）</label>
+            <span class="text-[11px] text-pink-200/80">支持正片叠底 / 柔光</span>
+          </div>
+          <select id="wmBlendMode" class="w-full px-2.5 py-2 rounded-xl bg-slate-900 border border-pink-500/40 text-xs text-white focus:outline-none focus:border-pink-500">
+            <option value="multiply" selected>🫧 正片叠底 (Multiply · 像水彩暗印融入原画，强烈推荐)</option>
+            <option value="soft-light">🌤️ 柔光溶图 (Soft Light · 顺应原画明暗极自然隐形)</option>
+            <option value="overlay">✨ 叠加混合 (Overlay · 亮部清透、暗部深邃有质感)</option>
+            <option value="screen">🌟 滤色提亮 (Screen · 适合深色图或浅色发光水印框)</option>
+            <option value="color-burn">🔥 颜色加深 (Color Burn · 浓郁复古色彩融合)</option>
+            <option value="source-over">📌 正常覆盖 (Normal · 传统半透明浮层)</option>
+          </select>
+
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-300">水印总浓度 (透明度)</span>
+              <span id="wmOpacityVal" class="text-pink-400 font-medium">32%</span>
+            </div>
+            <input id="wmOpacity" type="range" min="5" max="100" value="32" class="w-full" />
+          </div>
+        </div>
+
+        <!-- NEW: Custom Imported Watermark / Watermark Frame Section -->
+        <div class="bg-slate-900/85 border border-violet-500/35 rounded-xl p-3 flex flex-col gap-3">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div>
+              <div class="text-xs font-bold text-violet-300 flex items-center gap-1.5">
+                <span>🖼️ 导入自定义水印 / 水印框</span>
+                <span id="customWmStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-normal">未导入</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5">支持正方形水印重复铺满全屏，或导入整张水印框调整颜色、大小与位置</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <label for="customWmInput" class="cursor-pointer px-2.5 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow transition">
+                📥 选择水印图
+                <input id="customWmInput" type="file" accept="image/*" class="hidden" />
+              </label>
+              <button id="btnClearCustomWm" type="button" class="hidden px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-slate-700 text-xs transition">
+                清除
+              </button>
+            </div>
+          </div>
+
+          <!-- Controls for Custom Imported Watermark -->
+          <div id="customWmControlsBox" class="flex flex-col gap-2.5 pt-2 border-t border-slate-800/90 text-xs">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label for="customWmLayout" class="block text-[11px] text-slate-300 mb-1">铺满与排版方式</label>
+                <select id="customWmLayout" class="w-full px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white">
+                  <option value="repeat" selected>🔁 重复平铺铺满全屏 (正方形水印推荐)</option>
+                  <option value="contain">📐 等比居中水印框 / 大章 (可移动缩放)</option>
+                  <option value="stretch">🖼️ 拉伸贴合四边 (全画幅水印框)</option>
+                  <option value="cover">✨ 等比裁切铺满全屏</option>
+                </select>
+              </div>
+              <div>
+                <label for="customWmCombine" class="block text-[11px] text-slate-300 mb-1">与文字水印关系</label>
+                <select id="customWmCombine" class="w-full px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white">
+                  <option value="replace" selected>仅显示导入的自定义水印</option>
+                  <option value="both">与下方文字水印同时叠加</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Custom Color Tinting & Background Removal for Imported Watermark -->
+            <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 flex flex-col gap-2">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                  <input id="customWmTintEnabled" type="checkbox" class="w-3.5 h-3.5 accent-pink-500 rounded" />
+                  <span class="font-medium text-slate-200">🎨 开启自定义改色 / 智能去底色</span>
+                </label>
+                <div class="flex items-center gap-1.5">
+                  <input id="customWmColor" type="color" value="#7c6f9f" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0" title="选择水印框/水印颜色" />
+                  <select id="customWmSourceBg" class="px-2 py-1 rounded bg-slate-900 border border-slate-700 text-[11px] text-slate-200">
+                    <option value="alpha" selected>原图是透明底 PNG</option>
+                    <option value="whiteBg">原图是白底黑字 (自动抠白底)</option>
+                    <option value="blackBg">原图是黑底白字 (自动抠黑底)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Size, Position (Up/Down/Left/Right), Rotation -->
+            <div class="grid grid-cols-2 gap-3 pt-0.5">
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-300">水印/单格缩放大小</span>
+                  <span id="customWmScaleVal" class="text-violet-300 font-medium">100%</span>
+                </div>
+                <input id="customWmScale" type="range" min="15" max="260" value="100" class="w-full" />
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-300">旋转角度</span>
+                  <span id="customWmRotateVal" class="text-violet-300 font-medium">0°</span>
+                </div>
+                <input id="customWmRotate" type="range" min="-180" max="180" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-300">左右移动 (水平位置)</span>
+                  <span id="customWmOffsetXVal" class="text-violet-300 font-medium">0%</span>
+                </div>
+                <input id="customWmOffsetX" type="range" min="-100" max="100" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-300">上下移动 (垂直位置)</span>
+                  <span id="customWmOffsetYVal" class="text-violet-300 font-medium">0%</span>
+                </div>
+                <input id="customWmOffsetY" type="range" min="-100" max="100" value="0" class="w-full" />
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center gap-1">
+                <span class="text-[11px] text-slate-400">快捷移位：</span>
+                <button type="button" id="btnWmNudgeLeft" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">⬅️</button>
+                <button type="button" id="btnWmNudgeRight" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">➡️</button>
+                <button type="button" id="btnWmNudgeUp" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">⬆️</button>
+                <button type="button" id="btnWmNudgeDown" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">⬇️</button>
+              </div>
+              <button type="button" id="btnWmResetTransform" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-violet-300 border border-slate-700 text-[11px]">
+                🎯 居中与大小复位
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Watermark Controls -->
+        <div class="flex flex-col gap-3 border-t border-slate-800 pt-3">
+          <div class="text-xs font-bold text-slate-200">🔤 内置文字全屏水印设置</div>
           <div>
             <label for="wmText" class="block text-xs font-medium text-slate-300 mb-1">主水印文字（如圈名/个人署名）</label>
             <input id="wmText" type="text" value="Art by @My_NAI_Gallery" class="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700 text-sm text-white focus:outline-none focus:border-pink-500" />
@@ -291,24 +424,9 @@
             <input id="wmSubText" type="text" value="ORIGINAL ILLUSTRATION · DO NOT REPOST" class="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700 text-sm text-white focus:outline-none focus:border-pink-500" />
           </div>
 
-          <!-- Blend Mode Selector (Request #1: Multiply / 正片叠底) -->
-          <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-2.5 flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-              <label for="wmBlendMode" class="text-xs font-bold text-pink-300">✨ 水印图层混合模式（推荐正片叠底）</label>
-              <span class="text-[11px] text-pink-200/80">解决肉眼生硬刺眼问题</span>
-            </div>
-            <select id="wmBlendMode" class="w-full px-2.5 py-2 rounded-xl bg-slate-900 border border-pink-500/40 text-xs text-white focus:outline-none focus:border-pink-500">
-              <option value="multiply" selected>🫧 正片叠底 (Multiply · 像水彩暗印融入原画，强烈推荐)</option>
-              <option value="soft-light">🌤️ 柔光溶图 (Soft Light · 顺应原画明暗极自然隐形)</option>
-              <option value="overlay">✨ 叠加混合 (Overlay · 亮部清透、暗部深邃有质感)</option>
-              <option value="color-burn">🔥 颜色加深 (Color Burn · 浓郁复古色彩融合)</option>
-              <option value="source-over">📌 正常覆盖 (Normal · 传统半透明浮层)</option>
-            </select>
-          </div>
-
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label for="wmStyle" class="block text-xs font-medium text-slate-300 mb-1">水印排版模式</label>
+              <label for="wmStyle" class="block text-xs font-medium text-slate-300 mb-1">文字排版模式</label>
               <select id="wmStyle" class="w-full px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-pink-500">
                 <option value="tiled">全屏交错平铺 (标准)</option>
                 <option value="cross">双向交叉斜印 (紧密防扒)</option>
@@ -317,7 +435,7 @@
               </select>
             </div>
             <div>
-              <label for="wmColorMode" class="block text-xs font-medium text-slate-300 mb-1">水印色调 (含正片叠底专属色)</label>
+              <label for="wmColorMode" class="block text-xs font-medium text-slate-300 mb-1">文字色调 (含正片叠底色)</label>
               <select id="wmColorMode" class="w-full px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-pink-500">
                 <option value="multiplyWatercolor" selected>🎨 水彩灰紫暗印 (正片叠底绝配)</option>
                 <option value="multiplyRoseTea">🥀 玫瑰茶棕暗印 (暖调肤色绝配)</option>
@@ -331,31 +449,24 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-4 pt-1">
+          <div class="grid grid-cols-3 gap-3 pt-1">
             <div>
               <div class="flex justify-between text-xs mb-1">
-                <span class="text-slate-300">水印浓度 (透明度)</span>
-                <span id="wmOpacityVal" class="text-pink-400 font-medium">32%</span>
-              </div>
-              <input id="wmOpacity" type="range" min="5" max="90" value="32" class="w-full" />
-            </div>
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-slate-300">字号大小</span>
+                <span class="text-slate-300">字号</span>
                 <span id="wmSizeVal" class="text-pink-400 font-medium">24px</span>
               </div>
               <input id="wmSize" type="range" min="14" max="64" value="24" class="w-full" />
             </div>
             <div>
               <div class="flex justify-between text-xs mb-1">
-                <span class="text-slate-300">平铺间距 (越小越密)</span>
+                <span class="text-slate-300">间距</span>
                 <span id="wmGapVal" class="text-pink-400 font-medium">175px</span>
               </div>
               <input id="wmGap" type="range" min="90" max="340" value="175" class="w-full" />
             </div>
             <div>
               <div class="flex justify-between text-xs mb-1">
-                <span class="text-slate-300">倾斜角度</span>
+                <span class="text-slate-300">倾角</span>
                 <span id="wmAngleVal" class="text-pink-400 font-medium">-26°</span>
               </div>
               <input id="wmAngle" type="range" min="-75" max="75" value="-26" class="w-full" />
@@ -393,12 +504,12 @@
         </div>
       </div>
 
-      <!-- TAB 2: ANTI-IMG2IMG PATTERN (底纹) -->
+      <!-- TAB 2: ANTI-IMG2IMG PATTERN & CUSTOM IMPORTED PATTERN (底纹) -->
       <div id="tab-pattern" class="tab-panel hidden glass-panel rounded-2xl p-4 flex flex-col gap-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
           <div>
-            <h2 class="text-sm font-bold text-white">内置防垫图干扰底纹 (Anti-Img2Img)</h2>
-            <p class="text-xs text-slate-400">专克 NovelAI 垫图、Vibe Transfer 与 ControlNet 线稿提取</p>
+            <h2 class="text-sm font-bold text-white">防垫图底纹 & 自定义底纹导入</h2>
+            <p class="text-xs text-slate-400">支持内置矢量抗 AI 底纹或导入你自己的底纹图，支持正片叠底与柔光</p>
           </div>
           <label class="inline-flex items-center gap-2 cursor-pointer">
             <input id="patEnabled" type="checkbox" checked class="w-4 h-4 accent-pink-500 rounded" />
@@ -407,15 +518,104 @@
         </div>
 
         <div class="flex flex-col gap-3">
+          <!-- Pattern Layer Blend Mode (Multiply / Soft Light / Overlay) -->
+          <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-2.5 flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <label for="patBlendMode" class="text-xs font-bold text-pink-300">✨ 底纹图层混合效果（正片叠底 / 柔光 / 叠加）</label>
+              <span class="text-[11px] text-pink-200/80">内置与导入底纹通用</span>
+            </div>
+            <select id="patBlendMode" class="w-full px-2.5 py-2 rounded-xl bg-slate-900 border border-pink-500/40 text-xs text-white focus:outline-none focus:border-pink-500">
+              <option value="soft-light" selected>🌤️ 柔光 (Soft Light · 极其柔和自然，肉眼最舒服)</option>
+              <option value="multiply">🫧 正片叠底 (Multiply · 深色纹理暗印融入画面)</option>
+              <option value="overlay">✨ 叠加 (Overlay · 经典高对比抗 AI 底纹)</option>
+              <option value="screen">🌟 滤色 (Screen · 适合浅色蕾丝/星光底纹提亮)</option>
+              <option value="color-burn">🔥 颜色加深 (Color Burn · 浓郁复古肌理感)</option>
+              <option value="source-over">📌 正常覆盖 (Normal · 原图半透明直接叠放)</option>
+            </select>
+          </div>
+
           <div>
-            <label for="patType" class="block text-xs font-medium text-slate-300 mb-1">内置底纹类型（全自动矢量生成）</label>
+            <label for="patType" class="block text-xs font-medium text-slate-300 mb-1">选择底纹类型（导入图片后自动切换为自定义底纹）</label>
             <select id="patType" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-500">
               <option value="sparkleLattice" selected>💎 二次元星芒碎钻网 (美观柔和且破坏局部特征)</option>
               <option value="moireWave">🌊 水波莫尔干涉纹 (强力：AI垫图直接崩坏)</option>
               <option value="crossHatch">🕸️ 细密交叉斜纹网 (干扰 Lineart / Canny 提取)</option>
               <option value="halftoneDots">🟣 赛博半调波点阵 (打乱 VAE 潜空间编码)</option>
               <option value="hexShield">🐝 蜂巢六边形晶格 (全画面均匀纹理护盾)</option>
+              <option value="customImage">🖼️ 自定义导入底纹图 (使用下方上传的底纹素材)</option>
             </select>
+          </div>
+
+          <!-- NEW: Custom Pattern Image Upload & Controls -->
+          <div class="bg-slate-900/85 border border-violet-500/35 rounded-xl p-3 flex flex-col gap-2.5 text-xs">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <div>
+                <div class="font-bold text-violet-300 flex items-center gap-1.5">
+                  <span>📥 导入自定义底纹素材</span>
+                  <span id="customPatStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-normal">未导入</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-0.5">导入正方形底纹可自动重复平铺满全屏，也可整张拉伸或改色</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <label for="customPatInput" class="cursor-pointer px-2.5 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow transition">
+                  📥 选择底纹图
+                  <input id="customPatInput" type="file" accept="image/*" class="hidden" />
+                </label>
+                <button id="btnClearCustomPat" type="button" class="hidden px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-slate-700 text-xs transition">
+                  清除
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1.5 border-t border-slate-800">
+              <div>
+                <label for="customPatLayout" class="block text-[11px] text-slate-300 mb-1">底纹铺满方式</label>
+                <select id="customPatLayout" class="w-full px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white">
+                  <option value="repeat" selected>🔁 重复平铺铺满全屏 (无缝纹理推荐)</option>
+                  <option value="cover">✨ 等比放大铺满全屏</option>
+                  <option value="stretch">🖼️ 拉伸贴合整张画面</option>
+                </select>
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-300">自定义底纹缩放</span>
+                  <span id="customPatScaleVal" class="text-violet-300 font-medium">100%</span>
+                </div>
+                <input id="customPatScale" type="range" min="15" max="250" value="100" class="w-full mt-1.5" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-300">底纹左右移动</span>
+                  <span id="customPatOffsetXVal" class="text-violet-300 font-medium">0%</span>
+                </div>
+                <input id="customPatOffsetX" type="range" min="-100" max="100" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-300">底纹上下移动</span>
+                  <span id="customPatOffsetYVal" class="text-violet-300 font-medium">0%</span>
+                </div>
+                <input id="customPatOffsetY" type="range" min="-100" max="100" value="0" class="w-full" />
+              </div>
+            </div>
+
+            <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-800 flex items-center justify-between gap-2 flex-wrap">
+              <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                <input id="customPatTintEnabled" type="checkbox" class="w-3.5 h-3.5 accent-pink-500 rounded" />
+                <span class="text-[11px] font-medium text-slate-200">🎨 给自定义底纹改色 / 抠白底</span>
+              </label>
+              <div class="flex items-center gap-1.5">
+                <input id="customPatColor" type="color" value="#64748b" class="w-5 h-5 rounded cursor-pointer bg-transparent border-0 p-0" />
+                <select id="customPatSourceBg" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[11px] text-slate-200">
+                  <option value="alpha" selected>透明底 PNG</option>
+                  <option value="whiteBg">白底纹理 (抠白底)</option>
+                  <option value="blackBg">黑底纹理 (抠黑底)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4 pt-1">
@@ -424,11 +624,11 @@
                 <span class="text-slate-300">底纹明显度 (透明度)</span>
                 <span id="patOpacityVal" class="text-pink-400 font-medium">14%</span>
               </div>
-              <input id="patOpacity" type="range" min="4" max="65" value="14" class="w-full" />
+              <input id="patOpacity" type="range" min="4" max="90" value="14" class="w-full" />
             </div>
             <div>
               <div class="flex justify-between text-xs mb-1">
-                <span class="text-slate-300">底纹精细度 (间距)</span>
+                <span class="text-slate-300">内置底纹间距</span>
                 <span id="patScaleVal" class="text-pink-400 font-medium">18px</span>
               </div>
               <input id="patScale" type="range" min="8" max="42" value="18" class="w-full" />
@@ -497,7 +697,7 @@
           <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 flex flex-col gap-1.5">
             <div class="flex justify-between text-xs">
               <span class="text-slate-300 font-medium">🔍 拼贴框特写取景重心 (上下调节特写位置)</span>
-              <span id="collageFocusYVal" class="text-pink-400 font-medium">26% (脸部/上半身)</span>
+              <span id="collageFocusYVal" class="text-pink-400 font-medium">26%</span>
             </div>
             <input id="collageFocusY" type="range" min="12" max="78" value="26" class="w-full" />
             <span class="text-[11px] text-slate-400">适用于「三格特写拼贴」「双拍立得」「浮光视窗拼贴」的局部放大框取景</span>
@@ -614,6 +814,10 @@
       activeIndex: 0,
       isComparingOriginal: false,
       randomPhase: 0,
+      customWmImg: null,
+      customWmName: "",
+      customPatImg: null,
+      customPatName: "",
       eraser: {
         active: false,
         mode: "erase", // "erase" | "restore"
@@ -641,12 +845,31 @@
         wmSize: 24,
         wmGap: 175,
         wmAngle: -26,
+        // Custom imported watermark / frame settings
+        customWmLayout: "repeat", // "repeat" | "contain" | "stretch" | "cover"
+        customWmCombine: "replace", // "replace" | "both"
+        customWmTintEnabled: false,
+        customWmColor: "#7c6f9f",
+        customWmSourceBg: "alpha", // "alpha" | "whiteBg" | "blackBg"
+        customWmScale: 100,
+        customWmRotate: 0,
+        customWmOffsetX: 0,
+        customWmOffsetY: 0,
         stampType: "none",
         stampPos: "bottomRight",
+        // Pattern & custom imported pattern settings
         patEnabled: true,
+        patBlendMode: "soft-light",
         patType: "sparkleLattice",
         patOpacity: 14,
         patScale: 18,
+        customPatLayout: "repeat", // "repeat" | "cover" | "stretch"
+        customPatScale: 100,
+        customPatOffsetX: 0,
+        customPatOffsetY: 0,
+        customPatTintEnabled: false,
+        customPatColor: "#64748b",
+        customPatSourceBg: "alpha",
         noiseLevel: 9,
         rgbShift: 1,
         frameType: "none",
@@ -668,6 +891,131 @@
       toastTimer = setTimeout(() => {
         box.classList.add("hidden");
       }, 3200);
+    }
+
+    // Helper: Convert hex color (#rrggbb) to {r, g, b}
+    function hexToRgb(hex) {
+      const clean = (hex || "#7c6f9f").replace("#", "");
+      const num = parseInt(clean, 16);
+      if (isNaN(num)) return { r: 124, g: 111, b: 159 };
+      return {
+        r: (num >> 16) & 255,
+        g: (num >> 8) & 255,
+        b: num & 255
+      };
+    }
+
+    // Cache for tinted/processed custom watermark or pattern images so dragging sliders stays 60fps smooth
+    const processedAssetCache = new Map();
+    function getProcessedCustomAsset(img, tintEnabled, hexColor, sourceBgMode, cacheKeyPrefix) {
+      if (!img) return null;
+      if (!tintEnabled && sourceBgMode === "alpha") {
+        return img;
+      }
+      const key = `${cacheKeyPrefix}_${img.src.length}_${tintEnabled}_${hexColor}_${sourceBgMode}`;
+      if (processedAssetCache.has(key)) {
+        return processedAssetCache.get(key);
+      }
+
+      const off = document.createElement("canvas");
+      const maxDim = 1400;
+      let w = img.naturalWidth || img.width || 512;
+      let h = img.naturalHeight || img.height || 512;
+      if (Math.max(w, h) > maxDim) {
+        const ratio = maxDim / Math.max(w, h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+      }
+      off.width = w;
+      off.height = h;
+      const ctx = off.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+
+      if (sourceBgMode === "whiteBg" || sourceBgMode === "blackBg") {
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+        const rgb = hexToRgb(hexColor);
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const a = data[i + 3] / 255;
+          const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+          let maskAlpha = sourceBgMode === "whiteBg" ? (255 - luma) : luma;
+          maskAlpha = Math.min(255, Math.max(0, (maskAlpha - 25) * 1.25)) * a;
+          if (tintEnabled) {
+            data[i] = rgb.r;
+            data[i + 1] = rgb.g;
+            data[i + 2] = rgb.b;
+          }
+          data[i + 3] = Math.round(maskAlpha);
+        }
+        ctx.putImageData(imgData, 0, 0);
+      } else if (tintEnabled) {
+        ctx.save();
+        ctx.globalCompositeOperation = "source-in";
+        ctx.fillStyle = hexColor;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+      }
+
+      if (processedAssetCache.size > 12) {
+        const firstKey = processedAssetCache.keys().next().value;
+        processedAssetCache.delete(firstKey);
+      }
+      processedAssetCache.set(key, off);
+      return off;
+    }
+
+    // Draw an imported image asset (Custom Watermark Frame or Custom Pattern) onto a layer canvas
+    function drawCustomImageAssetLayer(ctx, targetW, targetH, assetSource, opts) {
+      if (!assetSource) return;
+      const srcW = assetSource.naturalWidth || assetSource.width || 256;
+      const srcH = assetSource.naturalHeight || assetSource.height || 256;
+      const scalePct = Math.max(0.1, (Number(opts.scale) || 100) / 100);
+      const offsetX = ((Number(opts.offsetX) || 0) / 100) * targetW * 0.6;
+      const offsetY = ((Number(opts.offsetY) || 0) / 100) * targetH * 0.6;
+      const angleRad = ((Number(opts.rotate) || 0) * Math.PI) / 180;
+      const layout = opts.layout || "repeat";
+
+      ctx.save();
+
+      if (layout === "repeat") {
+        const baseTileW = Math.max(36, Math.round(Math.min(targetW, targetH) * 0.34 * scalePct));
+        const baseTileH = Math.max(36, Math.round(baseTileW * (srcH / Math.max(1, srcW))));
+        const diag = Math.hypot(targetW, targetH) * 1.35;
+
+        ctx.translate(targetW / 2 + offsetX, targetH / 2 + offsetY);
+        ctx.rotate(angleRad);
+
+        for (let y = -diag / 2; y < diag / 2; y += baseTileH) {
+          for (let x = -diag / 2; x < diag / 2; x += baseTileW) {
+            ctx.drawImage(assetSource, x, y, baseTileW, baseTileH);
+          }
+        }
+      } else if (layout === "stretch") {
+        const drawW = targetW * scalePct;
+        const drawH = targetH * scalePct;
+        ctx.translate(targetW / 2 + offsetX, targetH / 2 + offsetY);
+        ctx.rotate(angleRad);
+        ctx.drawImage(assetSource, -drawW / 2, -drawH / 2, drawW, drawH);
+      } else if (layout === "cover") {
+        const ratio = Math.max(targetW / Math.max(1, srcW), targetH / Math.max(1, srcH)) * scalePct;
+        const drawW = srcW * ratio;
+        const drawH = srcH * ratio;
+        ctx.translate(targetW / 2 + offsetX, targetH / 2 + offsetY);
+        ctx.rotate(angleRad);
+        ctx.drawImage(assetSource, -drawW / 2, -drawH / 2, drawW, drawH);
+      } else {
+        const ratio = Math.min(targetW / Math.max(1, srcW), targetH / Math.max(1, srcH)) * scalePct;
+        const drawW = srcW * ratio;
+        const drawH = srcH * ratio;
+        ctx.translate(targetW / 2 + offsetX, targetH / 2 + offsetY);
+        ctx.rotate(angleRad);
+        ctx.drawImage(assetSource, -drawW / 2, -drawH / 2, drawW, drawH);
+      }
+
+      ctx.restore();
     }
 
     // Ensure an item has an offscreen eraseMask canvas
@@ -722,7 +1070,6 @@
         return;
       }
 
-      // If only sample image is in queue, replace it when user uploads their own art
       if (state.items.length === 1 && state.items[0].id === "sample-1") {
         state.items = [];
         state.activeIndex = 0;
@@ -791,7 +1138,6 @@
         thumbImg.className = "w-full h-full object-cover";
         wrap.appendChild(thumbImg);
 
-        // Delete button on each thumbnail
         if (state.items.length > 1) {
           const delBtn = document.createElement("button");
           delBtn.type = "button";
@@ -820,7 +1166,7 @@
       });
     }
 
-    // Core Rendering Pipeline: Renders a single item onto a target canvas
+    // Core Rendering Pipeline
     function renderProtectedImageToCanvas(item, canvas, isOriginalOnly = false) {
       if (!item || !item.img) return;
       const srcImg = item.img;
@@ -830,13 +1176,11 @@
       const baseW = Math.round(srcImg.naturalWidth * scaleFactor);
       const baseH = Math.round(srcImg.naturalHeight * scaleFactor);
 
-      // Step 1: Create offscreen artwork canvas (for base image + RGB shift + anti-img2img pattern + watermark + stamp)
       const artCanvas = document.createElement("canvas");
       artCanvas.width = baseW;
       artCanvas.height = baseH;
       const artCtx = artCanvas.getContext("2d");
 
-      // Fill opaque background first so Alpha-channel LSB stealth metadata is 100% destroyed
       artCtx.fillStyle = "#111115";
       artCtx.fillRect(0, 0, baseW, baseH);
       artCtx.drawImage(srcImg, 0, 0, baseW, baseH);
@@ -863,27 +1207,44 @@
         artCtx.restore();
       }
 
-      // Step 3: Procedural Anti-Img2Img Pattern Overlay (底纹)
+      // Step 3: Procedural or Custom Imported Anti-Img2Img Pattern Overlay (底纹)
       if (cfg.patEnabled) {
-        if (item.hasEraseStrokes && item.eraseMask && state.eraser.includePattern) {
-          const patLayer = document.createElement("canvas");
-          patLayer.width = baseW;
-          patLayer.height = baseH;
-          const patCtx = patLayer.getContext("2d");
+        const patLayer = document.createElement("canvas");
+        patLayer.width = baseW;
+        patLayer.height = baseH;
+        const patCtx = patLayer.getContext("2d");
+
+        if (cfg.patType === "customImage" && state.customPatImg) {
+          const processedPat = getProcessedCustomAsset(
+            state.customPatImg,
+            cfg.customPatTintEnabled,
+            cfg.customPatColor,
+            cfg.customPatSourceBg,
+            "pat"
+          );
+          drawCustomImageAssetLayer(patCtx, baseW, baseH, processedPat, {
+            layout: cfg.customPatLayout,
+            scale: cfg.customPatScale,
+            offsetX: cfg.customPatOffsetX,
+            offsetY: cfg.customPatOffsetY,
+            rotate: 0
+          });
+        } else {
           drawAntiAiPattern(patCtx, baseW, baseH, cfg, true);
+        }
+
+        if (item.hasEraseStrokes && item.eraseMask && state.eraser.includePattern) {
           patCtx.save();
           patCtx.globalCompositeOperation = "destination-out";
           patCtx.drawImage(item.eraseMask, 0, 0, baseW, baseH);
           patCtx.restore();
-
-          artCtx.save();
-          artCtx.globalAlpha = (Number(cfg.patOpacity) || 14) / 100;
-          artCtx.globalCompositeOperation = "overlay";
-          artCtx.drawImage(patLayer, 0, 0);
-          artCtx.restore();
-        } else {
-          drawAntiAiPattern(artCtx, baseW, baseH, cfg, false);
         }
+
+        artCtx.save();
+        artCtx.globalAlpha = (Number(cfg.patOpacity) || 14) / 100;
+        artCtx.globalCompositeOperation = cfg.patBlendMode || "soft-light";
+        artCtx.drawImage(patLayer, 0, 0);
+        artCtx.restore();
       }
 
       // Step 4: High-Frequency Film/Adversarial Noise
@@ -892,16 +1253,37 @@
         drawAdversarialNoise(artCtx, baseW, baseH, noiseIntensity);
       }
 
-      // Step 5: Tiled or Cross Watermark with Blend Mode (Multiply / Soft-Light / Overlay) & Interactive Face Eraser Mask
-      if (cfg.wmEnabled && (cfg.wmText.trim() || cfg.wmSubText.trim())) {
+      // Step 5: Watermark Layer (Built-in Text Watermark AND/OR Custom Imported Watermark / Watermark Frame)
+      const hasCustomWm = Boolean(state.customWmImg);
+      const shouldDrawTextWm = cfg.wmEnabled && (cfg.wmText.trim() || cfg.wmSubText.trim()) && (!hasCustomWm || cfg.customWmCombine === "both");
+
+      if (hasCustomWm || shouldDrawTextWm) {
         const wmLayer = document.createElement("canvas");
         wmLayer.width = baseW;
         wmLayer.height = baseH;
         const wmCtx = wmLayer.getContext("2d");
 
-        drawTextWatermark(wmCtx, baseW, baseH, cfg);
+        if (shouldDrawTextWm) {
+          drawTextWatermark(wmCtx, baseW, baseH, cfg);
+        }
 
-        // Subtract user-erased regions (e.g. over character's face) before blending onto artwork
+        if (hasCustomWm) {
+          const processedWm = getProcessedCustomAsset(
+            state.customWmImg,
+            cfg.customWmTintEnabled,
+            cfg.customWmColor,
+            cfg.customWmSourceBg,
+            "wm"
+          );
+          drawCustomImageAssetLayer(wmCtx, baseW, baseH, processedWm, {
+            layout: cfg.customWmLayout,
+            scale: cfg.customWmScale,
+            offsetX: cfg.customWmOffsetX,
+            offsetY: cfg.customWmOffsetY,
+            rotate: cfg.customWmRotate
+          });
+        }
+
         if (item.hasEraseStrokes && item.eraseMask) {
           wmCtx.save();
           wmCtx.globalCompositeOperation = "destination-out";
@@ -911,7 +1293,7 @@
 
         artCtx.save();
         artCtx.globalAlpha = (Number(cfg.wmOpacity) || 32) / 100;
-        if (cfg.wmColorMode === "difference") {
+        if (!hasCustomWm && cfg.wmColorMode === "difference") {
           artCtx.globalCompositeOperation = "difference";
         } else {
           artCtx.globalCompositeOperation = cfg.wmBlendMode || "multiply";
@@ -948,18 +1330,19 @@
       const opacity = (Number(cfg.patOpacity) || 14) / 100;
       const step = Math.max(8, Number(cfg.patScale) || 18);
       const phase = state.randomPhase;
+      const isMultiply = cfg.patBlendMode === "multiply" || cfg.patBlendMode === "color-burn";
 
       ctx.save();
       if (!rawLayerMode) {
         ctx.globalAlpha = opacity;
-        ctx.globalCompositeOperation = "overlay";
+        ctx.globalCompositeOperation = cfg.patBlendMode || "soft-light";
       }
 
       if (cfg.patType === "moireWave") {
         ctx.lineWidth = Math.max(1, w / 900);
         for (let y = -step * 2; y < h + step * 2; y += step) {
           ctx.beginPath();
-          ctx.strokeStyle = (Math.floor(y / step) % 2 === 0) ? "#ffffff" : "#111827";
+          ctx.strokeStyle = (Math.floor(y / step) % 2 === 0) ? (isMultiply ? "#64748b" : "#ffffff") : "#111827";
           for (let x = 0; x <= w; x += 16) {
             const waveY = y + Math.sin((x * 0.025) + phase + y * 0.01) * (step * 0.55);
             if (x === 0) ctx.moveTo(x, waveY);
@@ -981,7 +1364,7 @@
         ctx.lineWidth = Math.max(1, w / 1000);
         const diag = w + h;
         for (let i = -diag; i < diag; i += step) {
-          ctx.strokeStyle = (Math.floor(i / step) % 2 === 0) ? "#ffffff" : "#000000";
+          ctx.strokeStyle = (Math.floor(i / step) % 2 === 0) ? (isMultiply ? "#64748b" : "#ffffff") : "#0f172a";
           ctx.beginPath();
           ctx.moveTo(i, 0);
           ctx.lineTo(i + h, h);
@@ -998,7 +1381,7 @@
         for (let y = sStep / 2; y < h; y += sStep) {
           for (let x = sStep / 2; x < w; x += sStep) {
             const r = Math.max(3, sStep * 0.22);
-            ctx.strokeStyle = ((Math.round(x + y)) % 2 === 0) ? "#ffffff" : "#f472b6";
+            ctx.strokeStyle = ((Math.round(x + y)) % 2 === 0) ? (isMultiply ? "#7c6f9f" : "#ffffff") : "#f472b6";
             ctx.beginPath();
             ctx.moveTo(x - r, y);
             ctx.lineTo(x + r, y);
@@ -1008,7 +1391,7 @@
 
             ctx.beginPath();
             ctx.arc(x + sStep * 0.5, y + sStep * 0.5, 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = "#ffffff";
+            ctx.fillStyle = isMultiply ? "#64748b" : "#ffffff";
             ctx.fill();
           }
         }
@@ -1018,7 +1401,7 @@
         for (let y = 0; y < h; y += dStep) {
           const offset = (Math.floor(y / dStep) % 2) * (dStep * 0.5);
           for (let x = offset; x < w; x += dStep) {
-            ctx.fillStyle = ((Math.floor(x / dStep) + Math.floor(y / dStep)) % 2 === 0) ? "#ffffff" : "#0f172a";
+            ctx.fillStyle = ((Math.floor(x / dStep) + Math.floor(y / dStep)) % 2 === 0) ? (isMultiply ? "#64748b" : "#ffffff") : "#0f172a";
             ctx.beginPath();
             ctx.arc(x, y, radius, 0, Math.PI * 2);
             ctx.fill();
@@ -1028,7 +1411,7 @@
         const r = Math.max(10, step * 1.1);
         const hexH = Math.sqrt(3) * r;
         ctx.lineWidth = Math.max(1, w / 950);
-        ctx.strokeStyle = "#ffffff";
+        ctx.strokeStyle = isMultiply ? "#64748b" : "#ffffff";
         for (let row = 0, y = 0; y < h + hexH; row++, y += hexH * 0.75) {
           for (let col = 0, x = (row % 2) * (r * 0.866); x < w + r * 2; col++, x += r * 1.732) {
             ctx.beginPath();
@@ -1097,21 +1480,18 @@
       const applyTextRender = (text, x, y, size) => {
         ctx.font = `700 ${size}px "Noto Sans SC", "Inter", sans-serif`;
         if (cfg.wmColorMode === "multiplyWatercolor") {
-          // Soft watercolor lavender-slate tone specifically crafted for Multiply blend mode
           ctx.lineWidth = Math.max(1.5, size * 0.08);
           ctx.strokeStyle = "rgba(76, 69, 108, 0.48)";
           ctx.strokeText(text, x, y);
           ctx.fillStyle = "rgba(128, 118, 162, 0.92)";
           ctx.fillText(text, x, y);
         } else if (cfg.wmColorMode === "multiplyRoseTea") {
-          // Warm dusty rose-tea tone crafted for skin tones & warm lighting in Multiply mode
           ctx.lineWidth = Math.max(1.5, size * 0.08);
           ctx.strokeStyle = "rgba(104, 52, 74, 0.48)";
           ctx.strokeText(text, x, y);
           ctx.fillStyle = "rgba(158, 102, 124, 0.92)";
           ctx.fillText(text, x, y);
         } else if (cfg.wmColorMode === "multiplyMonoInk") {
-          // Neutral charcoal ink wash for Multiply mode
           ctx.lineWidth = Math.max(1.4, size * 0.07);
           ctx.strokeStyle = "rgba(51, 65, 85, 0.45)";
           ctx.strokeText(text, x, y);
@@ -1339,7 +1719,6 @@
     function drawLiquidGlassNotification(ctx, artCanvas, artOffsetX, artOffsetY, cardX, cardY, cardW, cardH, captionText, w) {
       const radius = Math.round(cardH * 0.36);
 
-      // 1. Outer soft ambient drop shadow
       ctx.save();
       ctx.shadowColor = "rgba(0, 0, 0, 0.36)";
       ctx.shadowBlur = Math.round(w * 0.04);
@@ -1349,12 +1728,10 @@
       ctx.fill();
       ctx.restore();
 
-      // 2. Clipped Liquid Glass Lens & Frosted Backdrop
       ctx.save();
       roundRect(ctx, cardX, cardY, cardW, cardH, radius);
       ctx.clip();
 
-      // Simulated frosted glass refraction from underlying artwork
       try {
         ctx.save();
         ctx.filter = "blur(22px) saturate(175%) brightness(1.12)";
@@ -1369,7 +1746,6 @@
         ctx.restore();
       } catch (e) {}
 
-      // Multi-stop translucent liquid glass body gradient
       const glassGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
       glassGrad.addColorStop(0, "rgba(255, 255, 255, 0.38)");
       glassGrad.addColorStop(0.45, "rgba(255, 255, 255, 0.16)");
@@ -1378,14 +1754,12 @@
       ctx.fillStyle = glassGrad;
       ctx.fillRect(cardX, cardY, cardW, cardH);
 
-      // Top liquid specular reflection curve
       const topGloss = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardH * 0.52);
       topGloss.addColorStop(0, "rgba(255, 255, 255, 0.36)");
       topGloss.addColorStop(1, "rgba(255, 255, 255, 0.0)");
       ctx.fillStyle = topGloss;
       ctx.fillRect(cardX, cardY, cardW, cardH * 0.52);
 
-      // 3. iOS App Icon Squircle on the left
       const iconSize = Math.round(cardH * 0.62);
       const iconX = cardX + Math.round(cardH * 0.22);
       const iconY = cardY + Math.round((cardH - iconSize) / 2);
@@ -1407,7 +1781,6 @@
       ctx.font = `${Math.round(iconSize * 0.52)}px sans-serif`;
       ctx.fillText("✨", iconX + iconSize / 2, iconY + iconSize * 0.53);
 
-      // 4. Notification Header ("作品展示" + "现在") & User Signature Line
       const textLeft = iconX + iconSize + Math.round(cardH * 0.20);
       const textRight = cardX + cardW - Math.round(cardH * 0.24);
 
@@ -1425,7 +1798,6 @@
       ctx.font = `500 ${Math.round(cardH * 0.16)}px "Noto Sans SC", "Inter", sans-serif`;
       ctx.fillText("现在", textRight, cardY + cardH * 0.31);
 
-      // Main Signature Caption
       ctx.fillStyle = "#ffffff";
       ctx.textAlign = "left";
       ctx.font = `700 ${Math.round(cardH * 0.24)}px "Noto Sans SC", "Inter", sans-serif`;
@@ -1434,7 +1806,6 @@
 
       ctx.restore();
 
-      // 5. Outer 3D Liquid Glass Specular Rim Border
       ctx.save();
       const rimGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
       rimGrad.addColorStop(0, "rgba(255, 255, 255, 0.88)");
@@ -1448,8 +1819,7 @@
       ctx.restore();
     }
 
-    // Wrap artwork in Polaroid / Phone Lock / SNS Card / Film Strip / New Aesthetic Collages
-    // Returns placement { cx, cy, w, h, angle } of primary artwork on outCanvas
+    // Wrap artwork in Polaroid / Phone Lock / SNS Card / Film Strip / Aesthetic Collages
     function renderWithFrame(artCanvas, outCanvas, cfg, srcImg) {
       const w = artCanvas.width;
       const h = artCanvas.height;
@@ -1464,17 +1834,14 @@
         outCanvas.height = h + padTop + padBottom;
         const ctx = outCanvas.getContext("2d");
 
-        // Warm Polaroid paper
         ctx.fillStyle = "#faf8f5";
         ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
 
-        // Subtle inner border
         ctx.drawImage(artCanvas, padSide, padTop);
         ctx.strokeStyle = "rgba(15, 23, 42, 0.10)";
         ctx.lineWidth = Math.max(1, w * 0.0025);
         ctx.strokeRect(padSide, padTop, w, h);
 
-        // Clean Artist Signature Only (No ugly anti-AI warning text)
         ctx.fillStyle = "#1e293b";
         const fontSize = Math.round(Math.max(16, w * 0.036));
         ctx.font = `700 ${fontSize}px "Noto Sans SC", "Inter", sans-serif`;
@@ -1485,7 +1852,6 @@
         return { cx: padSide + w / 2, cy: padTop + h / 2, w, h, angle: 0 };
 
       } else if (cfg.frameType === "phoneLock") {
-        // Smartphone Lock Screen UI Overlay + iOS Liquid Glass Notification Banner
         const bezel = Math.round(w * 0.042);
         outCanvas.width = w + bezel * 2;
         outCanvas.height = h + bezel * 2;
@@ -1499,21 +1865,18 @@
         ctx.clip();
         ctx.drawImage(artCanvas, bezel, bezel);
 
-        // Subtle top gradient for lockscreen clock readability
         const grad = ctx.createLinearGradient(0, bezel, 0, bezel + h * 0.28);
         grad.addColorStop(0, "rgba(0,0,0,0.42)");
         grad.addColorStop(1, "rgba(0,0,0,0)");
         ctx.fillStyle = grad;
         ctx.fillRect(bezel, bezel, w, h * 0.28);
 
-        // Dynamic Island
         const islandW = Math.round(w * 0.26);
         const islandH = Math.round(w * 0.04);
         ctx.fillStyle = "#000000";
         roundRect(ctx, outCanvas.width / 2 - islandW / 2, bezel + Math.round(w * 0.024), islandW, islandH, 999);
         ctx.fill();
 
-        // Lockscreen Date & Time (Clean iOS aesthetic)
         ctx.save();
         ctx.shadowColor = "rgba(0,0,0,0.25)";
         ctx.shadowBlur = 8;
@@ -1526,14 +1889,12 @@
         ctx.fillText("09:41", outCanvas.width / 2, bezel + h * 0.205);
         ctx.restore();
 
-        // Bottom iOS Liquid Glass Notification Banner (No "预览框保护中" line!)
         const cardW = Math.round(w * 0.88);
         const cardH = Math.round(w * 0.135);
         const cardX = Math.round(outCanvas.width / 2 - cardW / 2);
         const cardY = bezel + h - cardH - Math.round(w * 0.068);
         drawLiquidGlassNotification(ctx, artCanvas, bezel, bezel, cardX, cardY, cardW, cardH, caption, w);
 
-        // Home indicator bar
         ctx.fillStyle = "rgba(255,255,255,0.82)";
         roundRect(ctx, outCanvas.width / 2 - w * 0.17, bezel + h - Math.round(w * 0.026), w * 0.34, Math.round(w * 0.009), 999);
         ctx.fill();
@@ -1542,7 +1903,6 @@
         return { cx: bezel + w / 2, cy: bezel + h / 2, w, h, angle: 0 };
 
       } else if (cfg.frameType === "triptychCollage") {
-        // DESIGN COLLAGE 1: 三格特写拼贴画报 (Left Main Art + Right Two Zoomed Detail Panels + Editorial Footer)
         const pad = Math.round(w * 0.048);
         const gap = Math.round(w * 0.024);
         const rightColW = Math.round(w * 0.62);
@@ -1551,16 +1911,13 @@
         outCanvas.height = pad * 2 + h + footerH;
         const ctx = outCanvas.getContext("2d");
 
-        // Warm gallery off-white artboard background
         ctx.fillStyle = "#f7f5f0";
         ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
 
-        // Subtle outer hairline frame
         ctx.strokeStyle = "rgba(30, 41, 59, 0.12)";
         ctx.lineWidth = Math.max(1, w * 0.002);
         ctx.strokeRect(Math.round(pad * 0.45), Math.round(pad * 0.45), outCanvas.width - Math.round(pad * 0.9), outCanvas.height - Math.round(pad * 0.9));
 
-        // Left Panel: Full Artwork with soft shadow
         ctx.save();
         ctx.shadowColor = "rgba(15, 23, 42, 0.12)";
         ctx.shadowBlur = Math.round(w * 0.025);
@@ -1572,14 +1929,12 @@
         ctx.drawImage(artCanvas, pad, pad);
         ctx.restore();
 
-        // Right Top Panel: Close-up Detail 01 (Face / Upper focal area)
         const cellH = Math.round((h - gap) / 2);
         const rightX = pad + w + gap;
         ctx.save();
         roundRect(ctx, rightX, pad, rightColW, cellH, Math.round(w * 0.018));
         ctx.clip();
         drawCroppedCover(ctx, artCanvas, 0.5, focusY, 2.2, rightX, pad, rightColW, cellH);
-        // Subtle aesthetic corner tag
         ctx.fillStyle = "rgba(15, 23, 42, 0.45)";
         roundRect(ctx, rightX + Math.round(w * 0.02), pad + Math.round(w * 0.02), Math.round(w * 0.18), Math.round(w * 0.042), 999);
         ctx.fill();
@@ -1590,7 +1945,6 @@
         ctx.fillText("FOCUS · 01", rightX + Math.round(w * 0.11), pad + Math.round(w * 0.041));
         ctx.restore();
 
-        // Right Bottom Panel: Close-up Detail 02 (Lower / Mid-section detail)
         const bottomY = pad + cellH + gap;
         const secondFocusY = Math.min(0.85, focusY + 0.32);
         ctx.save();
@@ -1607,7 +1961,6 @@
         ctx.fillText("DETAIL · 02", rightX + Math.round(w * 0.11), bottomY + Math.round(w * 0.041));
         ctx.restore();
 
-        // Bottom Editorial Signature Bar
         const footerCenterY = pad + h + footerH * 0.56;
         ctx.fillStyle = "#0f172a";
         ctx.textAlign = "left";
@@ -1615,7 +1968,6 @@
         ctx.font = `700 ${Math.round(w * 0.035)}px "Noto Sans SC", "Inter", sans-serif`;
         ctx.fillText(caption, pad, footerCenterY);
 
-        // Decorative Palette Dots & Editorial Label on the right
         const paletteColors = ["#f472b6", "#a78bfa", "#38bdf8", "#334155"];
         const dotR = Math.round(w * 0.012);
         paletteColors.forEach((col, idx) => {
@@ -1632,14 +1984,12 @@
         return { cx: pad + w / 2, cy: pad + h / 2, w, h, angle: 0 };
 
       } else if (cfg.frameType === "doublePolaroid") {
-        // DESIGN COLLAGE 2: 双拍立得错落叠放拼贴 (Atmospheric Blurred Backdrop + Back Detail Polaroid + Front Main Polaroid)
         const outW = Math.round(w * 1.48);
         const outH = Math.round(h * 1.32);
         outCanvas.width = outW;
         outCanvas.height = outH;
         const ctx = outCanvas.getContext("2d");
 
-        // Blurred moody background from artwork
         ctx.save();
         try {
           ctx.filter = "blur(28px) brightness(0.62) saturate(125%)";
@@ -1647,21 +1997,19 @@
         ctx.drawImage(artCanvas, -outW * 0.08, -outH * 0.08, outW * 1.16, outH * 1.16);
         ctx.restore();
 
-        // Dark vignette overlay for depth
         const radGrad = ctx.createRadialGradient(outW / 2, outH / 2, outW * 0.1, outW / 2, outH / 2, outW * 0.75);
         radGrad.addColorStop(0, "rgba(15, 23, 42, 0.10)");
         radGrad.addColorStop(1, "rgba(15, 23, 42, 0.52)");
         ctx.fillStyle = radGrad;
         ctx.fillRect(0, 0, outW, outH);
 
-        // Secondary Polaroid in the back (tilted right, zoomed into character face/detail)
         const subW = Math.round(w * 0.72);
         const subH = Math.round(h * 0.72);
         const subPad = Math.round(subW * 0.06);
         const subBottom = Math.round(subW * 0.18);
         ctx.save();
         ctx.translate(outW * 0.64, outH * 0.47);
-        ctx.rotate(0.11); // +6.3 deg
+        ctx.rotate(0.11);
         ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
         ctx.shadowBlur = Math.round(w * 0.045);
         ctx.shadowOffsetY = Math.round(w * 0.018);
@@ -1679,7 +2027,6 @@
         ctx.fillText("Detail Close-Up · 01", 0, subH / 2 + subBottom * 0.5);
         ctx.restore();
 
-        // Primary Polaroid in the front (slightly tilted left)
         const mainScale = 0.88;
         const mw = Math.round(w * mainScale);
         const mh = Math.round(h * mainScale);
@@ -1687,7 +2034,7 @@
         const mBottom = Math.round(mw * 0.18);
         const mainCenterX = outW * 0.41;
         const mainCenterY = outH * 0.49;
-        const mainAngle = -0.045; // -2.6 deg
+        const mainAngle = -0.045;
 
         ctx.save();
         ctx.translate(mainCenterX, mainCenterY);
@@ -1703,7 +2050,6 @@
 
         ctx.drawImage(artCanvas, 0, 0, w, h, -mw / 2, -mh / 2, mw, mh);
 
-        // Translucent Washi Tape at top center
         ctx.save();
         ctx.translate(0, -mh / 2 - mPad * 0.85);
         ctx.rotate(-0.03);
@@ -1711,7 +2057,6 @@
         ctx.fillRect(-mw * 0.16, -mPad * 0.42, mw * 0.32, mPad * 0.84);
         ctx.restore();
 
-        // User signature on front Polaroid bottom bar
         ctx.fillStyle = "#1e293b";
         ctx.font = `700 ${Math.round(w * 0.033)}px "Noto Sans SC", "Inter", sans-serif`;
         ctx.textAlign = "center";
@@ -1722,14 +2067,12 @@
         return { cx: mainCenterX, cy: mainCenterY, w: mw, h: mh, angle: mainAngle };
 
       } else if (cfg.frameType === "diagonalSplitCollage") {
-        // DESIGN COLLAGE 3: 浮光视窗杂志拼贴 (Liquid Glass Backdrop + Main Frame + 2 Floating Detail Windows + Liquid Glass Badge)
         const outW = Math.round(w * 1.46);
         const outH = Math.round(h * 1.18);
         outCanvas.width = outW;
         outCanvas.height = outH;
         const ctx = outCanvas.getContext("2d");
 
-        // Blurred vivid backdrop
         ctx.save();
         try {
           ctx.filter = "blur(30px) saturate(150%) brightness(0.72)";
@@ -1737,7 +2080,6 @@
         ctx.drawImage(artCanvas, -outW * 0.08, -outH * 0.08, outW * 1.16, outH * 1.16);
         ctx.restore();
 
-        // Main Artwork Card on Left
         const mainScale = 0.88;
         const mw = Math.round(w * mainScale);
         const mh = Math.round(h * mainScale);
@@ -1755,13 +2097,11 @@
         ctx.drawImage(artCanvas, 0, 0, w, h, mx, my, mw, mh);
         ctx.restore();
 
-        // Glass border around main card
         ctx.strokeStyle = "rgba(255, 255, 255, 0.65)";
         ctx.lineWidth = Math.max(2, w * 0.004);
         roundRect(ctx, mx, my, mw, mh, Math.round(w * 0.03));
         ctx.stroke();
 
-        // Two Floating Zoomed Detail Cards overlapping on the right
         const zoomW = Math.round(w * 0.46);
         const zoomH = Math.round(h * 0.34);
         const zx = Math.round(outW - zoomW - outW * 0.055);
@@ -1789,7 +2129,6 @@
           ctx.stroke();
         });
 
-        // Bottom-Right iOS Liquid Glass Notification Pill for Signature
         const pillW = Math.round(zoomW * 1.05);
         const pillH = Math.round(w * 0.13);
         const pillX = zx - Math.round(zoomW * 0.05);
@@ -1799,7 +2138,6 @@
         return { cx: mx + mw / 2, cy: my + mh / 2, w: mw, h: mh, angle: 0 };
 
       } else if (cfg.frameType === "magazineCover") {
-        // DESIGN COLLAGE 4: 日系画集杂志封面 (Editorial Artbook Layout)
         const padSide = Math.round(w * 0.075);
         const padTop = Math.round(w * 0.14);
         const padBottom = Math.round(w * 0.16);
@@ -1810,7 +2148,6 @@
         ctx.fillStyle = "#fbfaf8";
         ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
 
-        // Editorial Masthead Header
         ctx.fillStyle = "#0f172a";
         ctx.textAlign = "left";
         ctx.textBaseline = "alphabetic";
@@ -1823,7 +2160,6 @@
         ctx.fillText("VOL. 09 · ORIGINAL EDITION", outCanvas.width - padSide, padTop * 0.45);
         ctx.fillText("CURATED VISUAL WORKS", outCanvas.width - padSide, padTop * 0.64);
 
-        // Top dividing hairline
         ctx.strokeStyle = "#0f172a";
         ctx.lineWidth = Math.max(1.5, w * 0.003);
         ctx.beginPath();
@@ -1831,13 +2167,11 @@
         ctx.lineTo(outCanvas.width - padSide, padTop * 0.78);
         ctx.stroke();
 
-        // Main Artwork
         ctx.drawImage(artCanvas, padSide, padTop);
         ctx.strokeStyle = "rgba(15, 23, 42, 0.18)";
         ctx.lineWidth = Math.max(1, w * 0.002);
         ctx.strokeRect(padSide, padTop, w, h);
 
-        // Bottom Editorial Signature & Swatches
         const footY = padTop + h + padBottom * 0.48;
         ctx.fillStyle = "#0f172a";
         ctx.textAlign = "left";
@@ -1845,7 +2179,6 @@
         ctx.font = `700 ${Math.round(w * 0.035)}px "Noto Sans SC", "Inter", sans-serif`;
         ctx.fillText(caption, padSide, footY);
 
-        // Minimalist Barcode Graphic on Bottom Right
         const barRight = outCanvas.width - padSide;
         const barH = Math.round(w * 0.048);
         const barY = footY - barH / 2;
@@ -1864,7 +2197,6 @@
         return { cx: padSide + w / 2, cy: padTop + h / 2, w, h, angle: 0 };
 
       } else if (cfg.frameType === "galleryMatte") {
-        // DESIGN COLLAGE 5: 美术馆典藏装裱框 (Museum Double Matte + Metallic Plaque)
         const outerFrame = Math.round(w * 0.032);
         const mattePad = Math.round(w * 0.11);
         const matteBottom = Math.round(w * 0.17);
@@ -1872,15 +2204,12 @@
         outCanvas.height = h + outerFrame * 2 + mattePad + matteBottom;
         const ctx = outCanvas.getContext("2d");
 
-        // Outer dark walnut / charcoal gallery frame
         ctx.fillStyle = "#1c1917";
         ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
 
-        // Museum warm ivory matte board
         ctx.fillStyle = "#f5f2eb";
         ctx.fillRect(outerFrame, outerFrame, outCanvas.width - outerFrame * 2, outCanvas.height - outerFrame * 2);
 
-        // Inner bevel recession around artwork
         const artX = outerFrame + mattePad;
         const artY = outerFrame + mattePad;
         const bevel = Math.max(4, Math.round(w * 0.01));
@@ -1890,7 +2219,6 @@
 
         ctx.drawImage(artCanvas, artX, artY);
 
-        // Champagne Gold Museum Nameplate Plaque
         const plaqueW = Math.round(Math.min(w * 0.72, Math.max(w * 0.42, caption.length * w * 0.034)));
         const plaqueH = Math.round(w * 0.062);
         const plaqueX = Math.round(outCanvas.width / 2 - plaqueW / 2);
@@ -1918,7 +2246,6 @@
         return { cx: artX + w / 2, cy: artY + h / 2, w, h, angle: 0 };
 
       } else if (cfg.frameType === "snsCard") {
-        // Social Media Post Card (Clean Xiaohongshu / INS style without anti-AI boilerplate)
         const pad = Math.round(w * 0.055);
         const headerH = Math.round(w * 0.11);
         const footerH = Math.round(w * 0.14);
@@ -1929,7 +2256,6 @@
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
 
-        // Header Author Row
         const avatarR = Math.round(headerH * 0.30);
         const avGrad = ctx.createLinearGradient(pad, headerH * 0.25, pad + avatarR * 2, headerH * 0.85);
         avGrad.addColorStop(0, "#ec4899");
@@ -1945,14 +2271,12 @@
         ctx.font = `700 ${Math.round(w * 0.032)}px "Noto Sans SC", sans-serif`;
         ctx.fillText(caption, pad + avatarR * 2.5, headerH * 0.55);
 
-        // Image rounded
         ctx.save();
         roundRect(ctx, pad, headerH, w, h, Math.round(w * 0.025));
         ctx.clip();
         ctx.drawImage(artCanvas, pad, headerH);
         ctx.restore();
 
-        // Clean Aesthetic Footer
         const fy = headerH + h + footerH * 0.45;
         ctx.fillStyle = "#0f172a";
         ctx.font = `700 ${Math.round(w * 0.032)}px "Noto Sans SC", sans-serif`;
@@ -1964,7 +2288,6 @@
         return { cx: pad + w / 2, cy: headerH + h / 2, w, h, angle: 0 };
 
       } else if (cfg.frameType === "filmStrip") {
-        // 35mm Vintage Film Strip Frame
         const sideW = Math.round(w * 0.1);
         const topBottomH = Math.round(w * 0.06);
         outCanvas.width = w + sideW * 2;
@@ -1975,7 +2298,6 @@
         ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
         ctx.drawImage(artCanvas, sideW, topBottomH);
 
-        // Sprocket holes along left and right edges
         const holeW = Math.round(sideW * 0.42);
         const holeH = Math.round(holeW * 0.68);
         const holeStep = Math.round(holeH * 2.1);
@@ -1987,7 +2309,6 @@
           ctx.fill();
         }
 
-        // Clean Film Amber Markings
         ctx.fillStyle = "#f59e0b";
         ctx.font = `700 ${Math.round(w * 0.024)}px monospace`;
         ctx.textAlign = "left";
@@ -2013,7 +2334,6 @@
       outCanvas.height = h + pad * 2;
       const ctx = outCanvas.getContext("2d");
 
-      // Draw blurred backdrop from the same artwork
       ctx.save();
       try {
         ctx.filter = "blur(24px) brightness(0.55) saturate(130%)";
@@ -2026,12 +2346,10 @@
       ctx.translate(outCanvas.width / 2, outCanvas.height / 2);
       ctx.rotate(tiltAngle);
 
-      // Shadow
       ctx.shadowColor = "rgba(0, 0, 0, 0.60)";
       ctx.shadowBlur = Math.round(w * 0.05);
       ctx.shadowOffsetY = Math.round(w * 0.02);
 
-      // White card border around tilted image
       const border = Math.round(w * 0.025);
       const bottomBar = Math.round(w * 0.09);
       ctx.fillStyle = "#ffffff";
@@ -2041,7 +2359,6 @@
       ctx.shadowColor = "transparent";
       ctx.drawImage(artCanvas, -w / 2, -h / 2);
 
-      // Clean Caption on bottom bar
       ctx.fillStyle = "#0f172a";
       ctx.font = `700 ${Math.round(w * 0.03)}px "Noto Sans SC", sans-serif`;
       ctx.textAlign = "center";
@@ -2227,13 +2544,33 @@
       c.wmSize = Number(document.getElementById("wmSize").value);
       c.wmGap = Number(document.getElementById("wmGap").value);
       c.wmAngle = Number(document.getElementById("wmAngle").value);
+
+      c.customWmLayout = document.getElementById("customWmLayout").value;
+      c.customWmCombine = document.getElementById("customWmCombine").value;
+      c.customWmTintEnabled = document.getElementById("customWmTintEnabled").checked;
+      c.customWmColor = document.getElementById("customWmColor").value;
+      c.customWmSourceBg = document.getElementById("customWmSourceBg").value;
+      c.customWmScale = Number(document.getElementById("customWmScale").value);
+      c.customWmRotate = Number(document.getElementById("customWmRotate").value);
+      c.customWmOffsetX = Number(document.getElementById("customWmOffsetX").value);
+      c.customWmOffsetY = Number(document.getElementById("customWmOffsetY").value);
+
       c.stampType = document.getElementById("stampType").value;
       c.stampPos = document.getElementById("stampPos").value;
 
       c.patEnabled = document.getElementById("patEnabled").checked;
+      c.patBlendMode = document.getElementById("patBlendMode").value;
       c.patType = document.getElementById("patType").value;
       c.patOpacity = Number(document.getElementById("patOpacity").value);
       c.patScale = Number(document.getElementById("patScale").value);
+      c.customPatLayout = document.getElementById("customPatLayout").value;
+      c.customPatScale = Number(document.getElementById("customPatScale").value);
+      c.customPatOffsetX = Number(document.getElementById("customPatOffsetX").value);
+      c.customPatOffsetY = Number(document.getElementById("customPatOffsetY").value);
+      c.customPatTintEnabled = document.getElementById("customPatTintEnabled").checked;
+      c.customPatColor = document.getElementById("customPatColor").value;
+      c.customPatSourceBg = document.getElementById("customPatSourceBg").value;
+
       c.noiseLevel = Number(document.getElementById("noiseLevel").value);
       c.rgbShift = Number(document.getElementById("rgbShift").value);
 
@@ -2253,8 +2590,17 @@
       document.getElementById("wmSizeVal").textContent = `${c.wmSize}px`;
       document.getElementById("wmGapVal").textContent = `${c.wmGap}px`;
       document.getElementById("wmAngleVal").textContent = `${c.wmAngle}°`;
+      document.getElementById("customWmScaleVal").textContent = `${c.customWmScale}%`;
+      document.getElementById("customWmRotateVal").textContent = `${c.customWmRotate}°`;
+      document.getElementById("customWmOffsetXVal").textContent = `${c.customWmOffsetX}%`;
+      document.getElementById("customWmOffsetYVal").textContent = `${c.customWmOffsetY}%`;
+
       document.getElementById("patOpacityVal").textContent = `${c.patOpacity}%`;
       document.getElementById("patScaleVal").textContent = `${c.patScale}px`;
+      document.getElementById("customPatScaleVal").textContent = `${c.customPatScale}%`;
+      document.getElementById("customPatOffsetXVal").textContent = `${c.customPatOffsetX}%`;
+      document.getElementById("customPatOffsetYVal").textContent = `${c.customPatOffsetY}%`;
+
       document.getElementById("noiseLevelVal").textContent = `${c.noiseLevel}%`;
       document.getElementById("rgbShiftVal").textContent = `${c.rgbShift}px`;
       document.getElementById("eraserSizeVal").textContent = `${state.eraser.size}px`;
@@ -2276,13 +2622,33 @@
       document.getElementById("wmSize").value = c.wmSize;
       document.getElementById("wmGap").value = c.wmGap;
       document.getElementById("wmAngle").value = c.wmAngle;
+
+      document.getElementById("customWmLayout").value = c.customWmLayout;
+      document.getElementById("customWmCombine").value = c.customWmCombine;
+      document.getElementById("customWmTintEnabled").checked = c.customWmTintEnabled;
+      document.getElementById("customWmColor").value = c.customWmColor;
+      document.getElementById("customWmSourceBg").value = c.customWmSourceBg;
+      document.getElementById("customWmScale").value = c.customWmScale;
+      document.getElementById("customWmRotate").value = c.customWmRotate;
+      document.getElementById("customWmOffsetX").value = c.customWmOffsetX;
+      document.getElementById("customWmOffsetY").value = c.customWmOffsetY;
+
       document.getElementById("stampType").value = c.stampType;
       document.getElementById("stampPos").value = c.stampPos;
 
       document.getElementById("patEnabled").checked = c.patEnabled;
+      document.getElementById("patBlendMode").value = c.patBlendMode;
       document.getElementById("patType").value = c.patType;
       document.getElementById("patOpacity").value = c.patOpacity;
       document.getElementById("patScale").value = c.patScale;
+      document.getElementById("customPatLayout").value = c.customPatLayout;
+      document.getElementById("customPatScale").value = c.customPatScale;
+      document.getElementById("customPatOffsetX").value = c.customPatOffsetX;
+      document.getElementById("customPatOffsetY").value = c.customPatOffsetY;
+      document.getElementById("customPatTintEnabled").checked = c.customPatTintEnabled;
+      document.getElementById("customPatColor").value = c.customPatColor;
+      document.getElementById("customPatSourceBg").value = c.customPatSourceBg;
+
       document.getElementById("noiseLevel").value = c.noiseLevel;
       document.getElementById("rgbShift").value = c.rgbShift;
 
@@ -2306,8 +2672,9 @@
         c.wmGap = 180;
         c.stampType = "none";
         c.patEnabled = true;
-        c.patType = "sparkleLattice";
-        c.patOpacity = 12;
+        c.patBlendMode = "soft-light";
+        if (c.patType !== "customImage") c.patType = "sparkleLattice";
+        c.patOpacity = 14;
         c.noiseLevel = 8;
         c.rgbShift = 0.5;
         c.frameType = "none";
@@ -2321,7 +2688,8 @@
         c.wmGap = 175;
         c.stampType = "none";
         c.patEnabled = true;
-        c.patType = "sparkleLattice";
+        c.patBlendMode = "soft-light";
+        if (c.patType !== "customImage") c.patType = "sparkleLattice";
         c.patOpacity = 14;
         c.noiseLevel = 8;
         c.rgbShift = 1.0;
@@ -2336,7 +2704,8 @@
         c.wmGap = 180;
         c.stampType = "none";
         c.patEnabled = true;
-        c.patType = "sparkleLattice";
+        c.patBlendMode = "soft-light";
+        if (c.patType !== "customImage") c.patType = "sparkleLattice";
         c.patOpacity = 12;
         c.noiseLevel = 8;
         c.rgbShift = 1.0;
@@ -2351,7 +2720,8 @@
         c.wmGap = 175;
         c.stampType = "none";
         c.patEnabled = true;
-        c.patType = "crossHatch";
+        c.patBlendMode = "soft-light";
+        if (c.patType !== "customImage") c.patType = "crossHatch";
         c.patOpacity = 12;
         c.noiseLevel = 9;
         c.rgbShift = 1.0;
@@ -2366,7 +2736,8 @@
         c.wmGap = 155;
         c.stampType = "none";
         c.patEnabled = true;
-        c.patType = "moireWave";
+        c.patBlendMode = "overlay";
+        if (c.patType !== "customImage") c.patType = "moireWave";
         c.patOpacity = 20;
         c.noiseLevel = 14;
         c.rgbShift = 1.5;
@@ -2396,7 +2767,7 @@
       return results;
     }
 
-    // Open Album Modal (shows all processed images as <img> cards for long-press saving + one-tap share)
+    // Open Album Modal
     async function openAlbumModal() {
       if (state.items.length === 0) {
         showToast("⚠️ 请先添加至少一张图片");
@@ -2443,7 +2814,7 @@
       });
     }
 
-    // Native Web Share API to Save Directly to Phone Photo Album (iOS Safari / Android Chrome)
+    // Native Web Share API to Save Directly to Phone Photo Album
     async function shareToMobileAlbum() {
       if (state.items.length === 0) {
         showToast("⚠️ 队列中没有图片");
@@ -2493,7 +2864,7 @@
     window.addEventListener("DOMContentLoaded", () => {
       initSampleImage();
 
-      // File Input & Drag-and-Drop
+      // File Input & Drag-and-Drop for main artwork queue
       const fileInput = document.getElementById("fileInput");
       fileInput.addEventListener("change", (e) => {
         handleFiles(e.target.files);
@@ -2517,6 +2888,106 @@
         if (e.dataTransfer && e.dataTransfer.files) {
           handleFiles(e.dataTransfer.files);
         }
+      });
+
+      // Custom Watermark / Watermark Frame Upload & Controls
+      const customWmInput = document.getElementById("customWmInput");
+      const btnClearCustomWm = document.getElementById("btnClearCustomWm");
+      const customWmStatusBadge = document.getElementById("customWmStatusBadge");
+
+      customWmInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            state.customWmImg = img;
+            state.customWmName = file.name;
+            processedAssetCache.clear();
+            customWmStatusBadge.textContent = "已导入: " + (file.name.length > 10 ? file.name.slice(0, 10) + "…" : file.name);
+            customWmStatusBadge.className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-medium";
+            btnClearCustomWm.classList.remove("hidden");
+            renderActivePreview();
+            showToast("✅ 已导入自定义水印/水印框！可调整铺满方式、颜色、缩放和位置");
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+        customWmInput.value = "";
+      });
+
+      btnClearCustomWm.addEventListener("click", () => {
+        state.customWmImg = null;
+        state.customWmName = "";
+        processedAssetCache.clear();
+        customWmStatusBadge.textContent = "未导入";
+        customWmStatusBadge.className = "text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-normal";
+        btnClearCustomWm.classList.add("hidden");
+        renderActivePreview();
+        showToast("已清除自定义水印图，恢复默认文字水印");
+      });
+
+      // Quick Nudge & Reset buttons for Custom Watermark
+      const nudgeWm = (dx, dy) => {
+        state.config.customWmOffsetX = Math.max(-100, Math.min(100, (Number(state.config.customWmOffsetX) || 0) + dx));
+        state.config.customWmOffsetY = Math.max(-100, Math.min(100, (Number(state.config.customWmOffsetY) || 0) + dy));
+        pushConfigToUI();
+      };
+      document.getElementById("btnWmNudgeLeft").addEventListener("click", () => nudgeWm(-5, 0));
+      document.getElementById("btnWmNudgeRight").addEventListener("click", () => nudgeWm(5, 0));
+      document.getElementById("btnWmNudgeUp").addEventListener("click", () => nudgeWm(0, -5));
+      document.getElementById("btnWmNudgeDown").addEventListener("click", () => nudgeWm(0, 5));
+      document.getElementById("btnWmResetTransform").addEventListener("click", () => {
+        state.config.customWmScale = 100;
+        state.config.customWmRotate = 0;
+        state.config.customWmOffsetX = 0;
+        state.config.customWmOffsetY = 0;
+        pushConfigToUI();
+        showToast("🎯 已复位自定义水印的大小、角度与居中位置");
+      });
+
+      // Custom Pattern Upload & Clear
+      const customPatInput = document.getElementById("customPatInput");
+      const btnClearCustomPat = document.getElementById("btnClearCustomPat");
+      const customPatStatusBadge = document.getElementById("customPatStatusBadge");
+
+      customPatInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            state.customPatImg = img;
+            state.customPatName = file.name;
+            processedAssetCache.clear();
+            state.config.patEnabled = true;
+            state.config.patType = "customImage";
+            customPatStatusBadge.textContent = "已导入: " + (file.name.length > 10 ? file.name.slice(0, 10) + "…" : file.name);
+            customPatStatusBadge.className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-medium";
+            btnClearCustomPat.classList.remove("hidden");
+            pushConfigToUI();
+            showToast("✅ 已导入自定义底纹并自动切换！可选择正片叠底或柔光效果");
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+        customPatInput.value = "";
+      });
+
+      btnClearCustomPat.addEventListener("click", () => {
+        state.customPatImg = null;
+        state.customPatName = "";
+        processedAssetCache.clear();
+        if (state.config.patType === "customImage") {
+          state.config.patType = "sparkleLattice";
+        }
+        customPatStatusBadge.textContent = "未导入";
+        customPatStatusBadge.className = "text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-normal";
+        btnClearCustomPat.classList.add("hidden");
+        pushConfigToUI();
+        showToast("已清除自定义底纹图，恢复内置星芒底纹");
       });
 
       // Interactive Watermark Eraser Controls & Canvas Pointer Events
@@ -2657,8 +3128,14 @@
       // Form controls live reactivity
       const controlIds = [
         "wmEnabled", "wmText", "wmSubText", "wmBlendMode", "wmStyle", "wmColorMode",
-        "wmOpacity", "wmSize", "wmGap", "wmAngle", "stampType", "stampPos",
-        "patEnabled", "patType", "patOpacity", "patScale", "noiseLevel", "rgbShift",
+        "wmOpacity", "wmSize", "wmGap", "wmAngle",
+        "customWmLayout", "customWmCombine", "customWmTintEnabled", "customWmColor", "customWmSourceBg",
+        "customWmScale", "customWmRotate", "customWmOffsetX", "customWmOffsetY",
+        "stampType", "stampPos",
+        "patEnabled", "patBlendMode", "patType", "patOpacity", "patScale",
+        "customPatLayout", "customPatScale", "customPatOffsetX", "customPatOffsetY",
+        "customPatTintEnabled", "customPatColor", "customPatSourceBg",
+        "noiseLevel", "rgbShift",
         "frameType", "frameCaption", "collageFocusY", "frameTilt", "exportFormat", "exportScale",
         "eraserSize", "eraseIncludePattern"
       ];
